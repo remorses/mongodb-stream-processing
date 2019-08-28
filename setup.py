@@ -1,6 +1,6 @@
 from setuptools import setup
 
-NAME = 'module'
+NAME = 'mongodb_streams'
 setup(
     name=NAME,
     version=open('VERSION').read().strip(),

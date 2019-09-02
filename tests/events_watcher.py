@@ -32,19 +32,20 @@ def last_per_window(xs):
     xs = stream.filter(xs, bool)
     return xs
 
-def aggregate(array, pipeline):
-    return process_pipeline(array, None, pipeline, None)
+def aggregate(array, pipeline) -> list:
+    return list(process_pipeline(array, None, pipeline, None))
 
-async def multi_resolver(watcher, pipeline):
-    pass
+
 
 def get_where(pipeline):
     pipeline = [x for x in pipeline if '$match' in x.keys()]
     if pipeline:
         return pipeline[0]['$match']
+    else:
+        return {}
 
 async def single_resolver(collection, watcher, pipeline=[]):
-    initializer = await find_one(collection, get_where(pipeline))
+    initializer = await find_one(collection, get_where(pipeline) or {})
     yield initializer
     xs = stream.filter(watcher, lambda change: change['operationType'] == 'update',)
     xs = stream.map(xs, lambda change: change['fullDocument'], task_limit=1)
@@ -63,6 +64,29 @@ async def single_resolver(collection, watcher, pipeline=[]):
         print(f'serving {prettify(x)}')
         yield x
 
+async def multi_resolver(collection: AsyncIOMotorCollection, watcher, pipeline=[]):
+    documents: list = await find(collection, match=get_where(pipeline), )
+    documents = documents[:3]
+    documents: dict = {doc['_id']: aggregate([doc], pipeline)[0] for doc in documents}
+    yield list(documents.values())
+
+    def process(change):
+        document = change['fullDocument']
+        _id = document['_id']
+        if change['operationType'] == 'insert':
+            documents.update({_id: aggregate([document], pipeline)[0]})
+            return list(documents.values())
+        elif change['operationType'] == 'update':
+            if _id in documents.keys():
+                documents[_id] = aggregate([document], pipeline)[0]
+                return list(documents.values())
+    xs = stream.map(watcher, process, task_limit=1)
+    xs = stream.filter(xs, bool)
+    xs = window(xs, BATCH_INTERVAL)
+    xs = last_per_window(xs, )
+    async for x in xs:
+        yield list(x)
+
 async def main():
     db = AsyncIOMotorClient().db
     collection = db[EVENTS_COLLECTION]
@@ -70,9 +94,9 @@ async def main():
     watcher = Watcher(xs)
     # xs = stream.map(watcher, pretty, )
     async def consume():
-        streamer = single_resolver(collection, watcher, pipeline=[{'$match': {'user_id': 1}}])
+        streamer = multi_resolver(collection, watcher, pipeline=[]) # {'$match': {'user_id': 1}}
         async for x in streamer:
-            pass
+            print(f'got {prettify(x)}')
             # print(x)
 
     asyncio.create_task(consume())

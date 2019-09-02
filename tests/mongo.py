@@ -14,15 +14,16 @@ from mongodb_streams import accumulate_by_key, pretty, events, Batcher
 from .store_something import store_some
 
 PERSIST_INTERVAL = .4
-ID_KEY = 'user_id'
 AGGREGATED_KEY = 'likes'
+ID_KEY = 'user_id'
+AGGREGATED_ID_KEY = 'user_id'
 EVENTS_COLLECTION = 'likes'
 AGGREGATED_COLLECTION = 'aggregations'
 
 
 def make_db_operation(id, value):
     update = UpdateOne(
-        {ID_KEY: id, },
+        {AGGREGATED_ID_KEY: id, },
         {'$set': {AGGREGATED_KEY: value}, },
         upsert=True,
     )
@@ -45,7 +46,7 @@ async def main():
         return acc + 1
 
     async def initializer(doc: dict):
-        value = await db[AGGREGATED_COLLECTION].find_one({ID_KEY: key(doc)})
+        value = await db[AGGREGATED_COLLECTION].find_one({AGGREGATED_ID_KEY: key(doc)})
         value = value and value.get(AGGREGATED_KEY)
         return value or 0
     # initializer = 0  # TODO rm

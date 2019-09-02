@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+    {"name":"Python: File corrente","type":"python","request":"launch","program":"${file}","console":"integratedTerminal"},
         {
             "name": "Python: Mongo",
             "type": "python",
@@ -11,10 +12,16 @@
             "module": "tests.mongo"
         },
         {
-            "name": "Python: Main",
+            "name": "Python: watcher",
             "type": "python",
             "request": "launch",
-            "module": "mongodb_streams"
+            "module": "tests.test_watcher"
+        },
+        {
+            "name": "Python: Play",
+            "type": "python",
+            "request": "launch",
+            "module": "play"
         },
         {
             "name": "Python: mongo_windows",

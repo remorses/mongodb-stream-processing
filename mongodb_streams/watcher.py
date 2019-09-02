@@ -8,10 +8,11 @@ from collections.abc import AsyncIterable, Awaitable, AsyncIterator
 
 
 class Watcher(AsyncIterator):
-    def __init__(self):
+    def __init__(self, stream):
         self.stopped = False
         self.lock = asyncio.Lock()
         self.futures: typing.List[asyncio.Future] = []
+        self.stream = stream
         asyncio.create_task(self.consume())
 
     async def __anext__(self, ):
@@ -25,12 +26,9 @@ class Watcher(AsyncIterator):
             raise result
         return result
 
-    async def generator(self,):
-        raise NotImplementedError()
-
     async def consume(self, ):
         try:
-            async for elem in self.generator():
+            async for elem in self.stream:
                 async with self.lock:
                     for f in self.futures:
                         f.set_result(elem)
@@ -42,3 +40,4 @@ class Watcher(AsyncIterator):
                 for f in self.futures:
                     f.set_result(StopAsyncIteration())
                 self.futures = []
+

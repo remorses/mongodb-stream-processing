@@ -4,19 +4,14 @@ from mongodb_streams.watcher import Watcher
 
 @pytest.mark.asyncio
 async def test_basic():
-    class RangeWatcher(Watcher):
-        def __init__(self, n):
-            self.n = n
-            super().__init__()
-
-        async def generator(self, ):
-            for i in range(self.n):
-                print(f'generating {i}')
-                yield i
-                await asyncio.sleep(.2)
-            return
-
-    watcher = RangeWatcher(6)
+    
+    async def generator(n):
+        for i in range(n):
+            print(f'generating {i}')
+            yield i
+            await asyncio.sleep(.2)
+        return
+    watcher = Watcher(generator(5))
     async def consumer(n):
         async for i in watcher:
             print(f'{n} consumed {i}')

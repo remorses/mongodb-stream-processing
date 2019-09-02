@@ -17,7 +17,7 @@ from .batcher import Batcher
 
 
 @operator
-async def events(collection: AsyncIOMotorCollection, pipeline=[], read_token=None, store_token=None, keep_state=False):
+async def events(collection: AsyncIOMotorCollection, pipeline=[], read_token=None, store_token=None, keep_state=False,):
     if keep_state and not (read_token or store_token):
         raise Exception('no sense')
     if keep_state:
@@ -32,6 +32,8 @@ async def events(collection: AsyncIOMotorCollection, pipeline=[], read_token=Non
     streamer = collection.watch(
         pipeline=pipeline,
         resume_after={'_data': last_token, } if last_token else None,
+        full_document='updateLookup',
+
     )
     async for count, change in stream.enumerate(streamer):
         if count % 5 == 0 and keep_state:
@@ -39,4 +41,4 @@ async def events(collection: AsyncIOMotorCollection, pipeline=[], read_token=Non
                 await store_token(change['_id']['_data'])
             else:
                 store_token()
-        yield change['fullDocument']
+        yield change

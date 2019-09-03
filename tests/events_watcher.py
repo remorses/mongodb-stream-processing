@@ -70,6 +70,7 @@ async def multi_resolver(collection: AsyncIOMotorCollection, watcher, pipeline=[
     documents: dict = {doc['_id']: aggregate([doc], pipeline)[0] for doc in documents}
     yield list(documents.values())
 
+
     def process(change):
         document = change['fullDocument']
         _id = document['_id']
@@ -80,6 +81,7 @@ async def multi_resolver(collection: AsyncIOMotorCollection, watcher, pipeline=[
             if _id in documents.keys():
                 documents[_id] = aggregate([document], pipeline)[0]
                 return list(documents.values())
+
     xs = stream.map(watcher, process, task_limit=1)
     xs = stream.filter(xs, bool)
     xs = window(xs, BATCH_INTERVAL)

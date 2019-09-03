@@ -13,6 +13,12 @@
             "module": "tests.mongo"
         },
         {
+            "name": "Python: watch",
+            "type": "python",
+            "request": "launch",
+            "module": "tests.watch"
+        },
+        {
             "name": "Python: events_watcher",
             "type": "python",
             "request": "launch",

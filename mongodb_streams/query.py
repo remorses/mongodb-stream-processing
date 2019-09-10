@@ -32,6 +32,6 @@ async def count_documents(collection, match, pipeline=[]):
     ])
     if await cursor.fetch_next:
         object = cursor.next_object()
-        return object['count']
+        return object['count'] or 0
 
 

@@ -3,12 +3,12 @@ name: Python package
 on: [push]
 
 jobs:
-  services:
-    mongo:
-      image: mongo
-      ports:
-        - 27017
   build:
+    services:
+      mongo:
+        image: mongo
+        ports:
+          - 27017
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master

@@ -1,1 +1,9 @@
 coloredlogs
+funcy
+motor
+mongomock
+xconfig
+aiostream
+# test
+pytest-asyncio
+pytest

@@ -3,6 +3,11 @@ name: Python package
 on: [push]
 
 jobs:
+  services:
+    mongo:
+      image: mongo
+      ports:
+        - 27017
   build:
     runs-on: ubuntu-latest
     steps:

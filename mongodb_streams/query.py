@@ -13,8 +13,8 @@ async def find_one(collection: AsyncIOMotorCollection, match, pipeline=[]):
     else:
         return None
 
-
-async def find(collection: AsyncIOMotorCollection, match={}, pipeline=[], sort=None, limit=20, skip=0, max_len=20):
+MAX_NODES = 20
+async def find(collection: AsyncIOMotorCollection, match={}, pipeline=[], sort=None, limit=MAX_NODES+1, skip=0, max_len=MAX_NODES):
     pipe: list = []
     match and pipe.append({'$match': match})
     sort and pipe.append({'$sort': sort})

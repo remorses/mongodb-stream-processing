@@ -14,7 +14,7 @@ async def find_one(collection: AsyncIOMotorCollection, match, pipeline=[]):
         return None
 
 MAX_NODES = 20
-async def find(collection: AsyncIOMotorCollection, match={}, pipeline=[], sort=None, limit=MAX_NODES+1, skip=0, max_len=MAX_NODES):
+async def find(collection: AsyncIOMotorCollection, match={}, pipeline=[], sort=None, limit=None, skip=0, max_len=MAX_NODES):
     pipe: list = []
     match and pipe.append({'$match': match})
     sort and pipe.append({'$sort': sort})

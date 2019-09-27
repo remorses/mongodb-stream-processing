@@ -16,11 +16,15 @@ async def find_one(collection: AsyncIOMotorCollection, match, pipeline=[]):
 MAX_NODES = 20
 async def find(collection: AsyncIOMotorCollection, match={}, pipeline=[], sort=None, limit=None, skip=0, max_len=MAX_NODES):
     pipe: list = []
-    match and pipe.append({'$match': match})
-    sort and pipe.append({'$sort': sort})
-    limit and pipe.append({"$limit": skip + limit})
-    skip and pipe.append({"$skip": skip})
-    pipeline = pipe + pipeline
+    if match:
+        pipe.append({'$match': match})
+    if sort:
+        pipe.append({'$sort': sort})
+    if limit:
+        pipe.append({"$limit": skip + limit})
+    if skip:
+        pipe.append({"$skip": skip})
+    pipeline = pipeline + pipe
     cursor: AsyncIOMotorCursor = collection.aggregate(pipeline)
     return await cursor.to_list(max_len)
 

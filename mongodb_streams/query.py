@@ -13,7 +13,7 @@ async def find_one(collection: AsyncIOMotorCollection, match, pipeline=[]):
     else:
         return None
 
-MAX_NODES = 20
+MAX_NODES = 10000
 async def find(collection: AsyncIOMotorCollection, match={}, pipeline=[], sort=None, limit=None, skip=0, max_len=MAX_NODES):
     pipe: list = []
     if match:
